@@ -4,7 +4,6 @@ import unittest
 
 import numpy as np
 import pandas as pd
-
 from agents.code.modeling.utils.target_transforms import apply_target_transform
 
 
@@ -18,9 +17,7 @@ class TestTargetTransforms(unittest.TestCase):
         # Different slopes per era + intercept
         y = np.empty(n, dtype="float64")
         y[: n // 2] = 2.0 * benchmark[: n // 2] + 1.0 + rng.normal(scale=0.1, size=n // 2)
-        y[n // 2 :] = -3.0 * benchmark[n // 2 :] - 0.5 + rng.normal(
-            scale=0.1, size=n - n // 2
-        )
+        y[n // 2 :] = -3.0 * benchmark[n // 2 :] - 0.5 + rng.normal(scale=0.1, size=n - n // 2)
 
         X = pd.DataFrame({"era": eras, "v52_lgbm_ender20": benchmark})
         y = pd.Series(y, name="target")

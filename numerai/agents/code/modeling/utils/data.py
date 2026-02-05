@@ -5,9 +5,9 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from agents.code.metrics import numerai_metrics
 from numerapi import NumerAPI
 
-from agents.code.metrics import numerai_metrics
 from .constants import NUMERAI_DIR, REPO_DIR
 
 
@@ -15,9 +15,7 @@ def load_features(napi: NumerAPI, data_version: str, feature_set: str) -> list[s
     features_path = (NUMERAI_DIR / data_version / "features.json").resolve()
     features_path.parent.mkdir(parents=True, exist_ok=True)
     if not features_path.exists():
-        napi.download_dataset(
-            f"{data_version}/features.json", dest_path=str(features_path)
-        )
+        napi.download_dataset(f"{data_version}/features.json", dest_path=str(features_path))
     with features_path.open("r", encoding="utf-8") as f:
         feature_metadata = json.load(f)
     return feature_metadata["feature_sets"][feature_set]
@@ -44,9 +42,7 @@ def ensure_full_dataset(napi: NumerAPI, data_version: str) -> Path:
         napi.download_dataset(f"{data_version}/train.parquet", dest_path=str(train_path))
     if not validation_path.exists():
         validation_path.parent.mkdir(parents=True, exist_ok=True)
-        napi.download_dataset(
-            f"{data_version}/validation.parquet", dest_path=str(validation_path)
-        )
+        napi.download_dataset(f"{data_version}/validation.parquet", dest_path=str(validation_path))
 
     train = pd.read_parquet(train_path)
     validation = pd.read_parquet(validation_path)
@@ -104,6 +100,7 @@ def apply_missing_all_twos_as_nan(
     updated = pd.concat([non_features, features], axis=1)
     return updated[df.columns]
 
+
 def attach_benchmark_column(
     full: pd.DataFrame,
     data_version: str,
@@ -160,16 +157,12 @@ def attach_benchmark_models(
         full_eras = full_indexed.loc[common_ids, era_col].astype(str).to_numpy()
         if not np.array_equal(bench_eras, full_eras):
             raise ValueError("Benchmark eras do not align with full data by id.")
-    benchmark_cols = [
-        col for col in benchmark.columns if col not in {era_col, id_col}
-    ]
+    benchmark_cols = [col for col in benchmark.columns if col not in {era_col, id_col}]
     if not benchmark_cols:
         raise ValueError("Benchmark models file contains no model columns.")
     overlap = set(benchmark_cols) & set(full_indexed.columns)
     if overlap:
-        raise ValueError(
-            f"Benchmark columns already exist in full data: {sorted(overlap)}"
-        )
+        raise ValueError(f"Benchmark columns already exist in full data: {sorted(overlap)}")
     full_indexed = full_indexed.join(benchmark[benchmark_cols], how="left")
     return full_indexed.reset_index(), benchmark_cols
 

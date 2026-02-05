@@ -1,0 +1,50 @@
+[project]
+name = "numerai-example-scripts"
+version = "0.1.0"
+description = "Example scripts and agentic research framework for Numerai data science tournaments"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numerapi",
+    "numerai-tools",
+    "numpy",
+    "pandas",
+    "cloudpickle",
+    "scipy",
+    "lightgbm",
+    "pyarrow",
+    "jupyter",
+    "matplotlib",
+    "seaborn",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "pyright",
+]
+
+[tool.uv]
+managed = true
+python-preference = "system"
+preview = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-select = ["I"]
+fix = true
+unsafe-fixes = false
+exclude = [".git", ".venv", "build", "dist", "__pycache__"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+force-wrap-aliases = true
+
+[tool.pyright]
+typeCheckingMode = "strict"
+include = ["numerai"]
+venvPath = "."
+venv = ".venv"
+reportMissingImports = true
+reportMissingTypeStubs = false

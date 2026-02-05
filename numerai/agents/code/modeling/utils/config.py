@@ -12,9 +12,7 @@ def load_config(config_path: Path) -> dict:
             return module_vars["CONFIG"]
         if "config" in module_vars:
             return module_vars["config"]
-        raise ValueError(
-            f"Config file {config_path} must define CONFIG (or config) dict."
-        )
+        raise ValueError(f"Config file {config_path} must define CONFIG (or config) dict.")
     with config_path.open("r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -25,9 +23,7 @@ def resolve_results_path(config: dict, config_path: Path, results_dir: Path) -> 
     return results_dir / f"{results_name}.json"
 
 
-def resolve_predictions_path(
-    config: dict, config_path: Path, predictions_dir: Path
-) -> Path:
+def resolve_predictions_path(config: dict, config_path: Path, predictions_dir: Path) -> Path:
     output_config = config.get("output", {})
     predictions_name = output_config.get("predictions_name")
     if not predictions_name:

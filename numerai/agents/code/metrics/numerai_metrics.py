@@ -8,10 +8,9 @@ from typing import Iterable, List, Sequence
 import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
-from numerapi import NumerAPI
-from numerai_tools.scoring import correlation_contribution, numerai_corr
-
 from agents.code.modeling.utils.constants import NUMERAI_DIR, REPO_DIR
+from numerai_tools.scoring import correlation_contribution, numerai_corr
+from numerapi import NumerAPI
 
 
 def _resolve_data_path(path: str | Path) -> Path:
@@ -86,9 +85,7 @@ def per_era_mmc(
     df = df.dropna(subset=pred_cols + [meta_col, target_col])
 
     def _mmc(group):
-        return correlation_contribution(
-            group[pred_cols], group[meta_col], group[target_col]
-        )
+        return correlation_contribution(group[pred_cols], group[meta_col], group[target_col])
 
     per_era = df.groupby(era_col).apply(_mmc)
     return _normalize_per_era(per_era, pred_cols)
@@ -123,9 +120,7 @@ def per_era_bmc(
     df = df.dropna(subset=pred_cols + [benchmark_col, target_col])
 
     def _bmc(group):
-        return correlation_contribution(
-            group[pred_cols], group[benchmark_col], group[target_col]
-        )
+        return correlation_contribution(group[pred_cols], group[benchmark_col], group[target_col])
 
     per_era = df.groupby(era_col).apply(_bmc)
     return _normalize_per_era(per_era, pred_cols)
@@ -180,9 +175,7 @@ def _resolve_benchmark_column(columns: Iterable[str], benchmark_model: str) -> s
         return matches[0]
     if not matches:
         raise ValueError(f"Benchmark model '{benchmark_model}' not found in columns.")
-    raise ValueError(
-        f"Benchmark model '{benchmark_model}' matched multiple columns: {matches}"
-    )
+    raise ValueError(f"Benchmark model '{benchmark_model}' matched multiple columns: {matches}")
 
 
 def load_custom_benchmark_predictions(
@@ -197,9 +190,7 @@ def load_custom_benchmark_predictions(
     required = [col for col in [era_col, pred_col, id_col] if col in columns]
     benchmark = pd.read_parquet(predictions_path, columns=required)
     if pred_col not in benchmark.columns:
-        raise ValueError(
-            f"Expected '{pred_col}' column in benchmark file: {predictions_path}"
-        )
+        raise ValueError(f"Expected '{pred_col}' column in benchmark file: {predictions_path}")
     if pred_col != benchmark_name:
         benchmark = benchmark.rename(columns={pred_col: benchmark_name})
     return benchmark, benchmark_name
@@ -211,9 +202,7 @@ def ensure_full_benchmark_models(napi: NumerAPI, data_version: str) -> Path:
         return full_path
 
     train_path = (NUMERAI_DIR / data_version / "train_benchmark_models.parquet").resolve()
-    validation_path = (
-        NUMERAI_DIR / data_version / "validation_benchmark_models.parquet"
-    ).resolve()
+    validation_path = (NUMERAI_DIR / data_version / "validation_benchmark_models.parquet").resolve()
     validation_data_path = (NUMERAI_DIR / data_version / "validation.parquet").resolve()
     if not train_path.exists():
         train_path.parent.mkdir(parents=True, exist_ok=True)
@@ -329,13 +318,9 @@ def attach_benchmark_predictions(
 
     bench = benchmark[benchmark[era_col].isin(predictions[era_col])]
     if len(bench) != len(predictions):
-        raise ValueError(
-            "Benchmark rows do not match predictions; include id in predictions."
-        )
+        raise ValueError("Benchmark rows do not match predictions; include id in predictions.")
     if not np.array_equal(bench[era_col].to_numpy(), predictions[era_col].to_numpy()):
-        raise ValueError(
-            "Benchmark eras do not align with predictions; include id in predictions."
-        )
+        raise ValueError("Benchmark eras do not align with predictions; include id in predictions.")
     enriched = predictions.copy()
     enriched[benchmark_col] = bench[benchmark_col].to_numpy()
     return enriched
@@ -372,9 +357,7 @@ def summarize_prediction_file_with_bmc(
     id_col: str = "id",
 ) -> dict[str, pd.DataFrame]:
     """Load predictions, attach benchmark model, and summarize corr and BMC metrics."""
-    summaries = summarize_prediction_file(
-        predictions_path, pred_cols, target_col, era_col=era_col
-    )
+    summaries = summarize_prediction_file(predictions_path, pred_cols, target_col, era_col=era_col)
     columns = _parquet_columns(predictions_path)
     required_cols = [era_col, target_col, *_as_list(pred_cols)]
     if id_col in columns:
@@ -408,9 +391,7 @@ def summarize_prediction_file_with_bmc(
         id_col=id_col,
     )
     per_era = per_era_bmc(predictions, pred_cols, benchmark_col, target_col, era_col)
-    benchmark_corr = per_era_pred_corr(
-        predictions, pred_cols, benchmark_col, era_col=era_col
-    )
+    benchmark_corr = per_era_pred_corr(predictions, pred_cols, benchmark_col, era_col=era_col)
 
     bmc_summary = summarize_scores(per_era)
     benchmark_corr_mean = benchmark_corr.mean()

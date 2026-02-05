@@ -4,13 +4,11 @@ from __future__ import annotations
 
 import argparse
 import json
-from pathlib import Path
 import re
-from typing import Iterable
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from matplotlib import ticker
 
 try:
     import matplotlib.pyplot as plt
@@ -170,9 +168,7 @@ def _load_predictions(
     return pd.read_parquet(path, columns=required)
 
 
-def _per_era_corr(
-    df: pd.DataFrame, pred_col: str, target_col: str, era_col: str
-) -> pd.Series:
+def _per_era_corr(df: pd.DataFrame, pred_col: str, target_col: str, era_col: str) -> pd.Series:
     per_era = numerai_metrics.per_era_corr(df, [pred_col], target_col, era_col=era_col)
     if isinstance(per_era, pd.DataFrame):
         series = per_era[pred_col]
@@ -262,17 +258,15 @@ def _metrics_from_predictions(
         era_col=era_col,
     )
     bmc_summary = numerai_metrics.summarize_scores(bmc_df).loc[pred_col]
-    bmc_last = numerai_metrics.summarize_scores(
-        numerai_metrics._last_n_eras(bmc_df, 200)
-    ).loc[pred_col]
+    bmc_last = numerai_metrics.summarize_scores(numerai_metrics._last_n_eras(bmc_df, 200)).loc[
+        pred_col
+    ]
 
     benchmark_corr = numerai_metrics.per_era_pred_corr(
         df, [pred_col], benchmark_col, era_col=era_col
     )
     benchmark_corr_mean = benchmark_corr.mean().get(pred_col)
-    benchmark_corr_last = numerai_metrics._last_n_eras(benchmark_corr, 200).mean().get(
-        pred_col
-    )
+    benchmark_corr_last = numerai_metrics._last_n_eras(benchmark_corr, 200).mean().get(pred_col)
 
     row = {"model": name, "feature_set": None}
     row.update(_summary_row(bmc_summary, "bmc"))
@@ -464,9 +458,7 @@ def main() -> None:
 
     base_results_path = None
     if not use_benchmark_base:
-        base_results_path = _resolve_results_path(
-            output_dir, args.base_model, baselines_dir
-        )
+        base_results_path = _resolve_results_path(output_dir, args.base_model, baselines_dir)
         if not base_results_path:
             raise FileNotFoundError(
                 f"Results not found for {args.base_model} in {output_dir / 'results'} or {baselines_dir / 'results'}"
@@ -476,31 +468,26 @@ def main() -> None:
     for name in args.experiment_models:
         results_path = _resolve_results_path(output_dir, name)
         if not results_path:
-            raise FileNotFoundError(
-                f"Results not found for {name} in {output_dir / 'results'}"
-            )
+            raise FileNotFoundError(f"Results not found for {name} in {output_dir / 'results'}")
         metrics_rows.append(_load_metrics(results_path))
 
     reference_results_path = base_results_path
     if reference_results_path is None:
         if not args.experiment_models:
             raise ValueError("Benchmark baseline requires at least one experiment model.")
-        reference_results_path = _resolve_results_path(
-            output_dir, args.experiment_models[0]
-        )
+        reference_results_path = _resolve_results_path(output_dir, args.experiment_models[0])
         if not reference_results_path:
             raise FileNotFoundError(
                 f"Results not found for {args.experiment_models[0]} in {output_dir / 'results'}"
             )
 
     reference_data = json.loads(reference_results_path.read_text())
-    data_version = (
-        args.benchmark_data_version
-        or reference_data.get("data", {}).get("data_version", "v5.2")
+    data_version = args.benchmark_data_version or reference_data.get("data", {}).get(
+        "data_version", "v5.2"
     )
-    benchmark_model = args.base_benchmark_model or reference_data.get(
-        "benchmark", {}
-    ).get("model", "v52_lgbm_ender20")
+    benchmark_model = args.base_benchmark_model or reference_data.get("benchmark", {}).get(
+        "model", "v52_lgbm_ender20"
+    )
 
     if args.benchmark_data_path is not None:
         benchmark, benchmark_col = numerai_metrics.load_benchmark_predictions_from_path(
@@ -547,9 +534,7 @@ def main() -> None:
             ),
         )
     else:
-        base_path = _resolve_predictions_path(
-            output_dir, args.base_model, baselines_dir
-        )
+        base_path = _resolve_predictions_path(output_dir, args.base_model, baselines_dir)
         base_df = _load_predictions(
             base_path, args.pred_col, args.target_col, args.era_col, args.id_col
         )
@@ -565,9 +550,7 @@ def main() -> None:
     model_corrs = {}
     for name in args.experiment_models:
         pred_path = _resolve_predictions_path(output_dir, name)
-        df = _load_predictions(
-            pred_path, args.pred_col, args.target_col, args.era_col, args.id_col
-        )
+        df = _load_predictions(pred_path, args.pred_col, args.target_col, args.era_col, args.id_col)
         corr = _per_era_corr(df, args.pred_col, args.target_col, args.era_col)
         corr = _filter_by_start_era(corr, args.start_era)
         model_corrs[name] = corr
@@ -579,9 +562,7 @@ def main() -> None:
         raise ValueError("No overlapping eras across base and experiment models.")
     base_corr = base_corr.loc[common_eras]
     base_cumsum = base_corr.cumsum()
-    model_cumsums = {
-        name: corr.loc[common_eras].cumsum() for name, corr in model_corrs.items()
-    }
+    model_cumsums = {name: corr.loc[common_eras].cumsum() for name, corr in model_corrs.items()}
 
     bmc_cumsums = {}
     base_bmc = _per_era_bmc(
@@ -597,9 +578,7 @@ def main() -> None:
     model_bmcs = {}
     for name in args.experiment_models:
         pred_path = _resolve_predictions_path(output_dir, name)
-        df = _load_predictions(
-            pred_path, args.pred_col, args.target_col, args.era_col, args.id_col
-        )
+        df = _load_predictions(pred_path, args.pred_col, args.target_col, args.era_col, args.id_col)
         bmc = _per_era_bmc(
             df,
             args.pred_col,

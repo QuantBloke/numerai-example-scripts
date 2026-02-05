@@ -4,9 +4,9 @@ import json
 from pathlib import Path
 
 import pandas as pd
+from agents.code.metrics import numerai_metrics
 from numerapi import NumerAPI
 
-from agents.code.metrics import numerai_metrics
 from .config import (
     load_config,
     resolve_predictions_path,
@@ -102,9 +102,7 @@ def select_prediction_columns(
     era_col: str,
     target_col: str,
 ) -> pd.DataFrame:
-    prediction_cols = [
-        col for col in [id_col, era_col, target_col, "prediction", "cv_fold"] if col
-    ]
+    prediction_cols = [col for col in [id_col, era_col, target_col, "prediction", "cv_fold"] if col]
     prediction_cols = [col for col in prediction_cols if col in predictions.columns]
     return predictions[prediction_cols].copy()
 
@@ -206,8 +204,7 @@ def build_results_payload(
         },
         "benchmark": {
             "model": benchmark_model,
-            "file": benchmark_data_path
-            or f"{data_version}/full_benchmark_models.parquet",
+            "file": benchmark_data_path or f"{data_version}/full_benchmark_models.parquet",
         },
         "output": {
             "output_dir": str(output_dir),
@@ -216,9 +213,7 @@ def build_results_payload(
         "metrics": {
             "corr": summaries["corr"].loc["prediction"].to_dict(),
             "bmc": summaries["bmc"].loc["prediction"].to_dict(),
-            "bmc_last_200_eras": summaries["bmc_last_200_eras"]
-            .loc["prediction"]
-            .to_dict(),
+            "bmc_last_200_eras": summaries["bmc_last_200_eras"].loc["prediction"].to_dict(),
         },
         "cv": cv_meta,
         "training": {
@@ -245,9 +240,7 @@ def save_results(results: dict, results_path: Path) -> None:
     print(f"Saved results to {results_path}")
 
 
-def run_training(
-    config_path: Path, output_dir_override: Path | None = None
-) -> tuple[Path, Path]:
+def run_training(config_path: Path, output_dir_override: Path | None = None) -> tuple[Path, Path]:
     config = load_config(config_path)
 
     data_config = config.get("data", {})

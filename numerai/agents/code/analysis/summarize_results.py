@@ -85,9 +85,7 @@ def main() -> None:
 
     df = pd.DataFrame(rows)
     leaderboard = df.dropna(subset=["bmc_mean"]).copy()
-    leaderboard = leaderboard.sort_values(
-        by=args.sort, ascending=False, na_position="last"
-    )
+    leaderboard = leaderboard.sort_values(by=args.sort, ascending=False, na_position="last")
     if args.limit is not None:
         leaderboard = leaderboard.head(args.limit)
 

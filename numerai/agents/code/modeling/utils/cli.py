@@ -8,9 +8,7 @@ from .pipeline import run_training
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Train and evaluate the base Numerai model."
-    )
+    parser = argparse.ArgumentParser(description="Train and evaluate the base Numerai model.")
     parser.add_argument(
         "--config",
         type=Path,

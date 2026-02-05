@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 import re
+from pathlib import Path
 from typing import Iterable, Sequence
 
 import pandas as pd
@@ -51,9 +51,7 @@ TARGET_ALIASES: dict[str, Sequence[str]] = {
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description=(
-            "Plot cumulative per-era numerai_corr for benchmark models vs ender/cyrus."
-        )
+        description=("Plot cumulative per-era numerai_corr for benchmark models vs ender/cyrus.")
     )
     parser.add_argument(
         "--data-path",
@@ -172,12 +170,9 @@ def _resolve_column(name: str, columns: Iterable[str]) -> str:
         return matches[0]
     if matches:
         raise ValueError(
-            f"Column '{name}' matched multiple columns: {matches}. "
-            "Pass an explicit column name."
+            f"Column '{name}' matched multiple columns: {matches}. Pass an explicit column name."
         )
-    raise ValueError(
-        f"Column '{name}' not found. Use --list-columns to inspect available columns."
-    )
+    raise ValueError(f"Column '{name}' not found. Use --list-columns to inspect available columns.")
 
 
 def _resolve_target_column(name: str, columns: Iterable[str]) -> str:
@@ -192,12 +187,9 @@ def _resolve_target_column(name: str, columns: Iterable[str]) -> str:
         return matches[0]
     if matches:
         raise ValueError(
-            f"Target '{name}' matched multiple columns: {matches}. "
-            "Pass an explicit column name."
+            f"Target '{name}' matched multiple columns: {matches}. Pass an explicit column name."
         )
-    raise ValueError(
-        f"Target '{name}' not found. Use --list-columns to inspect available columns."
-    )
+    raise ValueError(f"Target '{name}' not found. Use --list-columns to inspect available columns.")
 
 
 def _infer_version(name: str, default_version: str, args: argparse.Namespace) -> str:
@@ -268,9 +260,7 @@ def _load_version_frame(
             if df.index.name == id_col:
                 df = df.reset_index()
             else:
-                raise ValueError(
-                    f"Expected '{id_col}' column in benchmark parquet: {path}"
-                )
+                raise ValueError(f"Expected '{id_col}' column in benchmark parquet: {path}")
         frames.append(df)
     df = pd.concat(frames, axis=0, ignore_index=True)
     return df, resolved
@@ -296,23 +286,17 @@ def _load_targets_frame(
         if full_path.exists():
             paths = [full_path]
         elif fallback_path is not None and fallback_path.exists():
-            print(
-                f"Warning: using targets from {fallback_path} for {data_version}."
-            )
+            print(f"Warning: using targets from {fallback_path} for {data_version}.")
             paths = [fallback_path]
         else:
             train_path = (NUMERAI_DIR / data_version / "train.parquet").resolve()
             val_path = (NUMERAI_DIR / data_version / "validation.parquet").resolve()
             if not train_path.exists():
                 train_path.parent.mkdir(parents=True, exist_ok=True)
-                napi.download_dataset(
-                    f"{data_version}/train.parquet", dest_path=str(train_path)
-                )
+                napi.download_dataset(f"{data_version}/train.parquet", dest_path=str(train_path))
             if not val_path.exists():
                 val_path.parent.mkdir(parents=True, exist_ok=True)
-                napi.download_dataset(
-                    f"{data_version}/validation.parquet", dest_path=str(val_path)
-                )
+                napi.download_dataset(f"{data_version}/validation.parquet", dest_path=str(val_path))
             paths = [train_path, val_path]
 
     columns = _available_columns(paths[0])
@@ -444,9 +428,7 @@ def main() -> None:
         ender_target = target_resolved.get(args.ender_col)
         cyrus_target = target_resolved.get(args.cyrus_col)
         if ender_target is None or cyrus_target is None:
-            raise ValueError(
-                f"Failed to resolve target columns for {version}."
-            )
+            raise ValueError(f"Failed to resolve target columns for {version}.")
         if ender_title is None:
             ender_title = ender_target
         if cyrus_title is None:
@@ -460,9 +442,7 @@ def main() -> None:
         for col, label in resolved.items():
             existing = resolved_by_label.get(label)
             if existing and existing != col:
-                raise ValueError(
-                    f"Model '{label}' resolved to multiple columns: {existing}, {col}"
-                )
+                raise ValueError(f"Model '{label}' resolved to multiple columns: {existing}, {col}")
             resolved_by_label[label] = col
             frame_models.append(col)
         if frame_models:
@@ -486,9 +466,7 @@ def main() -> None:
     cumsum_ender = _sort_era_index(cumsum_ender)
     cumsum_cyrus = _sort_era_index(cumsum_cyrus)
 
-    base_label = next(
-        (name for name in args.models if name.lower().startswith("v5_")), None
-    )
+    base_label = next((name for name in args.models if name.lower().startswith("v5_")), None)
     if base_label is None:
         raise ValueError("Diff plot requires a v5.* model in --models.")
     base_col = resolved_by_label[base_label]

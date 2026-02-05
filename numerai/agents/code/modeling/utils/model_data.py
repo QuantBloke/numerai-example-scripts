@@ -5,7 +5,6 @@ from typing import Iterable, Sequence
 
 import pandas as pd
 
-
 _KNOWN_X_GROUPS = {
     "features",
     "era",
@@ -71,9 +70,7 @@ def normalize_x_groups(x_groups: Iterable[str] | None) -> list[str]:
         if key in {"benchmark", "benchmarks"}:
             key = "benchmark_models"
         if key not in _KNOWN_X_GROUPS:
-            raise ValueError(
-                f"Unknown x_group '{key}'. Supported keys: {sorted(_KNOWN_X_GROUPS)}"
-            )
+            raise ValueError(f"Unknown x_group '{key}'. Supported keys: {sorted(_KNOWN_X_GROUPS)}")
         if key not in normalized:
             normalized.append(key)
     for required in _DEFAULT_X_GROUPS:

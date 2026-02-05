@@ -16,9 +16,7 @@ def apply_target_transform(
     if isinstance(transform, str):
         transform = {"type": transform}
     if not isinstance(transform, dict):
-        raise TypeError(
-            "model.target_transform must be a dict, a string identifier, or None."
-        )
+        raise TypeError("model.target_transform must be a dict, a string identifier, or None.")
 
     transform_type = transform.get("type")
     if transform_type is None:
@@ -118,9 +116,7 @@ def subtract_scaled_zscore_column(
     z_benchmark = _zscore(benchmark, groups=eras)
 
     y_values = pd.to_numeric(y, errors="coerce").to_numpy(dtype="float64", copy=False)
-    z_values = pd.to_numeric(z_benchmark, errors="coerce").to_numpy(
-        dtype="float64", copy=False
-    )
+    z_values = pd.to_numeric(z_benchmark, errors="coerce").to_numpy(dtype="float64", copy=False)
     transformed = y_values - float(scale) * z_values
     return pd.Series(transformed, index=y.index, name=y.name)
 
@@ -172,9 +168,7 @@ def _zscore_groupwise(x: np.ndarray, group_codes: np.ndarray) -> np.ndarray:
     sum_x = np.bincount(g, weights=xx, minlength=n_groups)
     sum_x2 = np.bincount(g, weights=xx * xx, minlength=n_groups)
 
-    mean = np.divide(
-        sum_x, counts, out=np.zeros_like(sum_x, dtype="float64"), where=counts != 0.0
-    )
+    mean = np.divide(sum_x, counts, out=np.zeros_like(sum_x, dtype="float64"), where=counts != 0.0)
     mean_x2 = np.divide(
         sum_x2,
         counts,
@@ -206,9 +200,7 @@ def _linear_residual(
         return pd.Series(resid, index=y.index, name=y.name)
 
     group_codes, _ = pd.factorize(groups, sort=False)
-    resid = _linear_residual_groupwise(
-        y_values, x_values, group_codes, fit_intercept=fit_intercept
-    )
+    resid = _linear_residual_groupwise(y_values, x_values, group_codes, fit_intercept=fit_intercept)
     return pd.Series(resid, index=y.index, name=y.name)
 
 

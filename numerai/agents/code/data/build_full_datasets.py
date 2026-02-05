@@ -6,9 +6,8 @@ import argparse
 from pathlib import Path
 
 import pandas as pd
-from numerapi import NumerAPI
-
 from agents.code.modeling.utils.constants import NUMERAI_DIR
+from numerapi import NumerAPI
 
 
 def parse_args() -> argparse.Namespace:
@@ -46,9 +45,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def build_full_dataset(
-    napi: NumerAPI, data_version: str, reuse_existing: bool = True
-) -> Path:
+def build_full_dataset(napi: NumerAPI, data_version: str, reuse_existing: bool = True) -> Path:
     full_path = (NUMERAI_DIR / data_version / "full.parquet").resolve()
     if reuse_existing and full_path.exists():
         return full_path
@@ -59,9 +56,7 @@ def build_full_dataset(
         napi.download_dataset(f"{data_version}/train.parquet", dest_path=str(train_path))
     if not validation_path.exists():
         validation_path.parent.mkdir(parents=True, exist_ok=True)
-        napi.download_dataset(
-            f"{data_version}/validation.parquet", dest_path=str(validation_path)
-        )
+        napi.download_dataset(f"{data_version}/validation.parquet", dest_path=str(validation_path))
 
     train = pd.read_parquet(train_path)
     validation = pd.read_parquet(validation_path)
@@ -75,16 +70,12 @@ def build_full_dataset(
     return full_path
 
 
-def build_full_benchmark(
-    napi: NumerAPI, data_version: str, reuse_existing: bool = True
-) -> Path:
+def build_full_benchmark(napi: NumerAPI, data_version: str, reuse_existing: bool = True) -> Path:
     full_path = (NUMERAI_DIR / data_version / "full_benchmark_models.parquet").resolve()
     if reuse_existing and full_path.exists():
         return full_path
     train_path = (NUMERAI_DIR / data_version / "train_benchmark_models.parquet").resolve()
-    validation_path = (
-        NUMERAI_DIR / data_version / "validation_benchmark_models.parquet"
-    ).resolve()
+    validation_path = (NUMERAI_DIR / data_version / "validation_benchmark_models.parquet").resolve()
     validation_data_path = (NUMERAI_DIR / data_version / "validation.parquet").resolve()
     if not train_path.exists():
         train_path.parent.mkdir(parents=True, exist_ok=True)
@@ -137,9 +128,7 @@ def build_downsampled_full_dataset(
     if era_col not in full.columns:
         raise ValueError(f"{full_path} missing '{era_col}' column.")
     unique_eras = sorted(full[era_col].unique(), key=lambda x: int(x))
-    keep_eras = {
-        era for idx, era in enumerate(unique_eras) if idx % era_step == era_offset
-    }
+    keep_eras = {era for idx, era in enumerate(unique_eras) if idx % era_step == era_offset}
     downsampled = full[full[era_col].isin(keep_eras)].copy()
     downsampled.to_parquet(downsampled_path, index=False)
     return downsampled_path
@@ -172,9 +161,7 @@ def main() -> None:
     reuse_existing = not args.rebuild
 
     full_data = build_full_dataset(napi, data_version, reuse_existing=reuse_existing)
-    full_benchmark = build_full_benchmark(
-        napi, data_version, reuse_existing=reuse_existing
-    )
+    full_benchmark = build_full_benchmark(napi, data_version, reuse_existing=reuse_existing)
 
     print(f"Built {full_data}")
     print(f"Built {full_benchmark}")

@@ -11,11 +11,7 @@ class TestSmallLgbmEnder20Baseline(unittest.TestCase):
     def test_pipeline_metrics(self) -> None:
         repo_root = Path(__file__).resolve().parents[2]
         config_path = (
-            repo_root
-            / "agents"
-            / "baselines"
-            / "configs"
-            / "small_lgbm_ender20_baseline.py"
+            repo_root / "agents" / "baselines" / "configs" / "small_lgbm_ender20_baseline.py"
         )
         _, results_path = run_training(config_path)
 

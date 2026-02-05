@@ -37,10 +37,7 @@ class LGBMRegressor:
     def _should_fallback_to_cpu(self, exc: Exception) -> bool:
         message = str(exc)
         device_type = str(self._params.get("device_type", "")).lower()
-        return (
-            device_type == "gpu"
-            and "GPU Tree Learner was not enabled" in message
-        )
+        return device_type == "gpu" and "GPU Tree Learner was not enabled" in message
 
     @staticmethod
     def _filter_features(X, feature_cols):

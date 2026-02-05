@@ -6,9 +6,8 @@ from typing import Iterable, List, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
-
-from agents.code.modeling.utils.model_factory import build_model
 from agents.code.modeling.utils.model_data import ModelDataBatch
+from agents.code.modeling.utils.model_factory import build_model
 
 
 def _era_sort_key(era):
@@ -70,9 +69,7 @@ def era_cv_splits(
             raise ValueError("mode must be 'expanding' or 'blocked'")
 
         if len(train_eras) < min_train_size:
-            raise ValueError(
-                "train split too small; reduce n_splits/embargo or set min_train_size"
-            )
+            raise ValueError("train split too small; reduce n_splits/embargo or set min_train_size")
 
         splits.append((train_eras, val_eras))
 
@@ -127,9 +124,7 @@ def build_oof_predictions(
                 f"Downsampled training fold {fold_idx} to {max_train_samples} rows for {model_type}."
             )
 
-        model = build_model(
-            model_type, model_params, model_config, feature_cols=feature_cols
-        )
+        model = build_model(model_type, model_params, model_config, feature_cols=feature_cols)
         model.fit(train_data.X, train_data.y)
         preds = model.predict(val_data.X)
 
